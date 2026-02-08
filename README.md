@@ -24,17 +24,38 @@ cd Stock-screener-app
 pip install -r requirements.txt
 ```
 
-3. Run migrations:
+3. (Optional) Configure environment variables:
+```bash
+cp .env.example .env
+# Edit .env file with your preferred settings
+```
+
+4. Run migrations:
 ```bash
 python manage.py migrate
 ```
 
-4. Start the development server:
+5. (Optional) Load sample stock data:
+```bash
+python manage.py load_sample_stocks
+```
+
+6. Start the development server:
 ```bash
 python manage.py runserver
 ```
 
-5. Open your browser and navigate to: `http://127.0.0.1:8000/`
+7. Open your browser and navigate to: `http://127.0.0.1:8000/`
+
+## Configuration
+
+The application uses environment variables for configuration. Create a `.env` file in the project root with the following variables:
+
+- `DJANGO_SECRET_KEY`: Secret key for Django (required for production)
+- `DJANGO_DEBUG`: Set to `False` in production
+- `DJANGO_ALLOWED_HOSTS`: Comma-separated list of allowed hosts
+
+See `.env.example` for more details.
 
 ## Usage
 
