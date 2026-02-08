@@ -61,17 +61,24 @@ def stock_detail(request, symbol):
     try:
         stock = Stock.objects.get(symbol=symbol.upper())
         
-        # Fetch live data from Yahoo Finance
-        ticker = yf.Ticker(symbol)
-        info = ticker.info
+        info = None
+        hist = None
         
-        # Get historical data for chart
-        hist = ticker.history(period="1mo")
+        # Try to fetch live data from Yahoo Finance
+        try:
+            ticker = yf.Ticker(symbol)
+            info = ticker.info
+            
+            # Get historical data for chart
+            hist = ticker.history(period="1mo")
+        except Exception as e:
+            # If Yahoo Finance API fails, just show database data
+            messages.warning(request, 'Unable to fetch live data. Showing stored data.')
         
         context = {
             'stock': stock,
             'info': info,
-            'history': hist.to_dict() if not hist.empty else None,
+            'history': hist.to_dict() if hist is not None and not hist.empty else None,
         }
         
         return render(request, 'screener/stock_detail.html', context)
