@@ -1,0 +1,123 @@
+{% extends 'screener/base.html' %}
+
+{% block title %}Stock Screener - Home{% endblock %}
+
+{% block content %}
+<div class="screener-section">
+    <h2 style="color: #333; margin-bottom: 20px;">Screen Stocks</h2>
+    
+    <form method="post" style="background: #f8f9fa; padding: 25px; border-radius: 8px; margin-bottom: 30px;">
+        {% csrf_token %}
+        
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+            <div class="form-group">
+                <label for="min_price">Minimum Price ($)</label>
+                <input type="number" step="0.01" name="min_price" id="min_price" placeholder="e.g., 10.00">
+            </div>
+            
+            <div class="form-group">
+                <label for="max_price">Maximum Price ($)</label>
+                <input type="number" step="0.01" name="max_price" id="max_price" placeholder="e.g., 500.00">
+            </div>
+            
+            <div class="form-group">
+                <label for="min_market_cap">Min Market Cap ($)</label>
+                <input type="number" name="min_market_cap" id="min_market_cap" placeholder="e.g., 1000000000">
+            </div>
+            
+            <div class="form-group">
+                <label for="max_pe">Maximum P/E Ratio</label>
+                <input type="number" step="0.01" name="max_pe" id="max_pe" placeholder="e.g., 25.00">
+            </div>
+            
+            <div class="form-group">
+                <label for="sector">Sector</label>
+                <select name="sector" id="sector">
+                    <option value="all">All Sectors</option>
+                    <option value="Technology">Technology</option>
+                    <option value="Financial">Financial Services</option>
+                    <option value="Healthcare">Healthcare</option>
+                    <option value="Consumer">Consumer</option>
+                    <option value="Energy">Energy</option>
+                    <option value="Industrial">Industrials</option>
+                    <option value="Communication">Communication Services</option>
+                    <option value="Real Estate">Real Estate</option>
+                    <option value="Utilities">Utilities</option>
+                    <option value="Materials">Basic Materials</option>
+                </select>
+            </div>
+        </div>
+        
+        <div style="text-align: center; margin-top: 20px;">
+            <button type="submit">🔍 Screen Stocks</button>
+        </div>
+    </form>
+    
+    {% if stocks is not None %}
+    <div class="results-section">
+        <h3 style="color: #333; margin-bottom: 15px;">
+            Screening Results ({{ stocks.count }} stock{{ stocks.count|pluralize }})
+        </h3>
+        
+        {% if stocks %}
+        <div style="overflow-x: auto;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Symbol</th>
+                        <th>Name</th>
+                        <th>Sector</th>
+                        <th>Price</th>
+                        <th>Market Cap</th>
+                        <th>P/E Ratio</th>
+                        <th>52W High</th>
+                        <th>52W Low</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for stock in stocks %}
+                    <tr>
+                        <td><strong>{{ stock.symbol }}</strong></td>
+                        <td>{{ stock.name }}</td>
+                        <td>{{ stock.sector|default:"N/A" }}</td>
+                        <td>${{ stock.current_price|floatformat:2|default:"N/A" }}</td>
+                        <td>
+                            {% if stock.market_cap %}
+                                ${{ stock.market_cap|floatformat:0 }}
+                            {% else %}
+                                N/A
+                            {% endif %}
+                        </td>
+                        <td>{{ stock.pe_ratio|floatformat:2|default:"N/A" }}</td>
+                        <td>${{ stock.fifty_two_week_high|floatformat:2|default:"N/A" }}</td>
+                        <td>${{ stock.fifty_two_week_low|floatformat:2|default:"N/A" }}</td>
+                        <td>
+                            <a href="{% url 'screener:stock_detail' stock.symbol %}" class="stock-link">
+                                View Details
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="no-results">
+            <p>🔍 No stocks found matching your criteria.</p>
+            <p style="margin-top: 10px; font-size: 0.9em;">
+                Try adjusting your filters or <a href="{% url 'screener:search' %}" class="stock-link">add more stocks</a> to the database.
+            </p>
+        </div>
+        {% endif %}
+    </div>
+    {% else %}
+    <div class="no-results">
+        <p>👆 Use the form above to screen stocks based on your criteria.</p>
+        <p style="margin-top: 10px; font-size: 0.9em;">
+            Don't have stocks in the database? <a href="{% url 'screener:search' %}" class="stock-link">Add some stocks</a> to get started!
+        </p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

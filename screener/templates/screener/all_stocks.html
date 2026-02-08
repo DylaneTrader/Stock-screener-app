@@ -1,0 +1,71 @@
+{% extends 'screener/base.html' %}
+
+{% block title %}All Stocks - Stock Screener{% endblock %}
+
+{% block content %}
+<div class="all-stocks-section">
+    <h2 style="color: #333; margin-bottom: 20px;">
+        All Stocks in Database ({{ stocks.count }})
+    </h2>
+    
+    {% if stocks %}
+    <div style="overflow-x: auto;">
+        <table>
+            <thead>
+                <tr>
+                    <th>Symbol</th>
+                    <th>Name</th>
+                    <th>Sector</th>
+                    <th>Industry</th>
+                    <th>Price</th>
+                    <th>Market Cap</th>
+                    <th>P/E Ratio</th>
+                    <th>Div Yield</th>
+                    <th>Last Updated</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for stock in stocks %}
+                <tr>
+                    <td><strong>{{ stock.symbol }}</strong></td>
+                    <td>{{ stock.name }}</td>
+                    <td>{{ stock.sector|default:"N/A" }}</td>
+                    <td>{{ stock.industry|default:"N/A" }}</td>
+                    <td>${{ stock.current_price|floatformat:2|default:"N/A" }}</td>
+                    <td>
+                        {% if stock.market_cap %}
+                            ${{ stock.market_cap|floatformat:0 }}
+                        {% else %}
+                            N/A
+                        {% endif %}
+                    </td>
+                    <td>{{ stock.pe_ratio|floatformat:2|default:"N/A" }}</td>
+                    <td>
+                        {% if stock.dividend_yield %}
+                            {{ stock.dividend_yield|floatformat:2 }}%
+                        {% else %}
+                            N/A
+                        {% endif %}
+                    </td>
+                    <td>{{ stock.last_updated|date:"Y-m-d H:i" }}</td>
+                    <td>
+                        <a href="{% url 'screener:stock_detail' stock.symbol %}" class="stock-link">
+                            View
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="no-results">
+        <p>📊 No stocks in the database yet.</p>
+        <p style="margin-top: 10px;">
+            <a href="{% url 'screener:search' %}" class="btn">Add Your First Stock</a>
+        </p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

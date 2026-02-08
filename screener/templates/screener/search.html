@@ -1,0 +1,72 @@
+{% extends 'screener/base.html' %}
+
+{% block title %}Add Stock - Stock Screener{% endblock %}
+
+{% block content %}
+<div class="search-section">
+    <h2 style="color: #333; margin-bottom: 20px;">Add Stock to Database</h2>
+    
+    <form method="post" style="background: #f8f9fa; padding: 30px; border-radius: 8px; max-width: 600px; margin: 0 auto;">
+        {% csrf_token %}
+        
+        <div class="form-group">
+            <label for="symbol">Stock Symbol</label>
+            <input type="text" name="symbol" id="symbol" placeholder="e.g., AAPL, MSFT, GOOGL" required style="text-transform: uppercase;">
+            <small style="color: #666; display: block; margin-top: 5px;">
+                Enter a valid stock ticker symbol (e.g., AAPL for Apple Inc.)
+            </small>
+        </div>
+        
+        <div style="text-align: center; margin-top: 20px;">
+            <button type="submit">➕ Add Stock</button>
+        </div>
+    </form>
+    
+    {% if stock %}
+    <div style="margin-top: 30px; background: #e8f5e9; padding: 20px; border-radius: 8px; border: 2px solid #4caf50;">
+        <h3 style="color: #2e7d32; margin-bottom: 15px;">✅ Stock Added Successfully!</h3>
+        
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+            <div>
+                <strong>Symbol:</strong> {{ stock.symbol }}
+            </div>
+            <div>
+                <strong>Name:</strong> {{ stock.name }}
+            </div>
+            <div>
+                <strong>Sector:</strong> {{ stock.sector|default:"N/A" }}
+            </div>
+            <div>
+                <strong>Current Price:</strong> ${{ stock.current_price|floatformat:2|default:"N/A" }}
+            </div>
+            <div>
+                <strong>Market Cap:</strong> 
+                {% if stock.market_cap %}
+                    ${{ stock.market_cap|floatformat:0 }}
+                {% else %}
+                    N/A
+                {% endif %}
+            </div>
+            <div>
+                <strong>P/E Ratio:</strong> {{ stock.pe_ratio|floatformat:2|default:"N/A" }}
+            </div>
+        </div>
+        
+        <div style="text-align: center; margin-top: 20px;">
+            <a href="{% url 'screener:stock_detail' stock.symbol %}" class="btn">View Details</a>
+            <a href="{% url 'screener:home' %}" class="btn" style="background: #4caf50; margin-left: 10px;">Screen Stocks</a>
+        </div>
+    </div>
+    {% endif %}
+    
+    <div style="margin-top: 40px; padding: 20px; background: #fff3cd; border-radius: 8px; border: 1px solid #ffc107;">
+        <h4 style="color: #856404; margin-bottom: 10px;">💡 Quick Tips</h4>
+        <ul style="color: #856404; line-height: 1.8; padding-left: 20px;">
+            <li>Use standard ticker symbols (e.g., AAPL, MSFT, GOOGL, TSLA)</li>
+            <li>Stock data is fetched from Yahoo Finance in real-time</li>
+            <li>You can add multiple stocks and then use filters to screen them</li>
+            <li>If a stock already exists, it will be updated with latest data</li>
+        </ul>
+    </div>
+</div>
+{% endblock %}
